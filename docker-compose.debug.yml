@@ -1,0 +1,10 @@
+services:
+  web:
+    build: .
+    ports:
+      - "5000:5000"
+      - "5678:5678"             # The ports configuration option is set to "5678:5678", which maps port 5678 on the host machine to port 5678 inside the Docker container. This allows you to connect a debugger to the Flask application running inside the container by using port 5678, enabling you to debug the application remotely from your development environment.
+    volumes:
+      - .:/app
+    command: ["sh", "-c", "pip install debugpy -t /tmp && python /tmp/debugpy --wait-for-client --listen 0.0.0.0:5678 -m flask run --no-debugger --no-reload --host 0.0.0.0 --port 5000"]                # The command configuration option is set to a shell command that installs the debugpy package in the /tmp directory and then starts the Flask application with debugpy attached. The --wait-for-client option tells debugpy to wait for a debugger client to connect before starting the application, while the --listen option specifies that debugpy should listen on all network interfaces (0.0.0.0) for incoming debugger connections.
+    

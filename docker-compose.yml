@@ -1,0 +1,8 @@
+services:
+  web:
+    build: .                          # The build configuration option is set to ".", which indicates that the Docker image for the web service should be built using the Dockerfile located in the current directory. This allows you to define the necessary instructions for building the image, such as installing dependencies and copying application files, ensuring that the container has everything it needs to run the Flask application.
+    ports:
+      - "5000:8000"                   # The ports configuration option is set to "5000:8000", which maps port 5000 on the host machine to port 8000 inside the Docker container. This allows you to access the Flask application running inside the container by visiting http://localhost:5000 in your web browser.
+    volumes:
+      - .:/app                        # The volumes configuration option is set to ".:/app", which mounts the current directory (.) on the host machine to the /app directory inside the Docker container. This allows you to make changes to the application code on your host machine and have those changes reflected in the container without needing to rebuild the image.
+      
