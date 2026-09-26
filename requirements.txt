@@ -7,3 +7,4 @@ flask-jwt-extended
 passlib
 flask-migrate      # connection between alembic and flask
 gunicorn
+psycopg[binary]

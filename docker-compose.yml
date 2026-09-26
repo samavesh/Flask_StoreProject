@@ -5,4 +5,19 @@ services:
       - "5000:80"                   # The ports configuration option is set to "5000:80", which maps port 5000 on the host machine to port 80 inside the Docker container. This allows you to access the Flask application running inside the container by visiting http://localhost:5000 in your web browser.
     volumes:
       - .:/app                        # The volumes configuration option is set to ".:/app", which mounts the current directory (.) on the host machine to the /app directory inside the Docker container. This allows you to make changes to the application code on your host machine and have those changes reflected in the container without needing to rebuild the image.
+    depends_on:
+      - db
+    env_file:
+      - ./.env
+  db:
+    image: postgres
+    environment:
+      - POSTGRES_PASSWORD=password
+      - POSTGRES_DB=storedb
+    ports:
+    - "5433:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql
+volumes:
+  postgres_data:
       

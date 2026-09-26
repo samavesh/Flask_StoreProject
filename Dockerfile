@@ -29,4 +29,5 @@ COPY . .
 # CMD ["flask", "run", "--host", "0.0.0.0"]
 
 # with 'gunicorn'
-CMD ["gunicorn", "--bind", "0.0.0.0:80", "StoreApp.main:create_app()"]
+# CMD ["gunicorn", "--bind", "0.0.0.0:80", "StoreApp.main:create_app()"]
+CMD ["/bin/bash", "docker-entrypoint.sh"]
