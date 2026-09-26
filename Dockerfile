@@ -24,5 +24,9 @@ RUN pip install --no-cache-dir --upgrade -r requirements.txt
 COPY . .
 
 # The CMD instruction specifies the command that will be executed when the container is started. In this case, it runs the Flask application using the flask run command, with the --host option set to
-# CMD ["flask", "run", "--host", "0.0.0.0"]          # without 'gunicorn'
+
+# without 'gunicorn'
+# CMD ["flask", "run", "--host", "0.0.0.0"]
+
+# with 'gunicorn'
 CMD ["gunicorn", "--bind", "0.0.0.0:80", "StoreApp.main:create_app()"]
