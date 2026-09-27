@@ -45,7 +45,7 @@ class Item(MethodView):              # The Item class inherits from MethodView, 
         # ************************************ 
 
         jwt = get_jwt()
-        if not jwt.get("is_admin"):
+        if jwt.get("role") != "admin":          # The get_jwt function is called to retrieve the JWT (JSON Web Token) from the request. It returns a dictionary containing the claims (payload) of the token. The code checks if the "role" claim in the JWT is not equal to "admin". If the user does not have an admin role, it raises a 401 error using abort, indicating that admin privileges are required to perform the delete operation.
             abort(401, message="Admin privilege required.")
 
         item = ItemModel.query.get_or_404(item_id)          # The query.get_or_404 method is called on the ItemModel class to retrieve an item from the database based on its item_id. If the item is not found, it automatically raises a 404 error, indicating that the item was not found. This provides a convenient way to handle item retrieval and error handling in a single line of code.

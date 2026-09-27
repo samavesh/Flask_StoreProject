@@ -51,6 +51,14 @@ class TagAndItemSchema(Schema):
 
 class UserSchema(Schema):
     id = fields.Int(dump_only=True)            # The id field is defined as an integer field that is marked as dump_only. This means that when serializing a User object to JSON, the id field will be included in the output, but when deserializing JSON data into a User object, the id field will be ignored.
+    firstname = fields.Str(required=True)
+    lastname = fields.Str(required=True)
     username = fields.Str(required=True)             # The username field is defined as a string field that is required for creating or updating a User object.
     password = fields.Str(required=True, load_only=True)            # The password field is defined as a string field that is required for creating or updating a User object and is marked as load_only. This means that when deserializing JSON data into a User object, the password field can be present and will be used to set the user's password in the database. However, when serializing a User object to JSON, the password field will not be included in the output. This is useful for fields that are used for input validation but should not be exposed in the API response.
-    
+    email = fields.Email(required=True)
+    role = fields.Str(dump_only=True)              # The role field is defined as a string field that is marked as dump_only. This means that when serializing a User object to JSON, the role field will be included in the output, but when deserializing JSON data into a User object, the role field will be ignored. This allows for including the user's role information in the API response without requiring the client to provide it in the request payload.
+
+
+class UserLoginSchema(Schema):
+    username = fields.Str(required=True)
+    password = fields.Str(required=True, load_only=True)

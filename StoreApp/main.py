@@ -5,6 +5,8 @@ from flask_jwt_extended import JWTManager
 from flask_migrate import Migrate
 from dotenv import load_dotenv
 
+from StoreApp.models.user import UserModel
+
 from .db import db
 from .blocklist import BLOCKLIST
 
@@ -68,10 +70,11 @@ def create_app(db_url = None):          # The create_app function is defined to 
     # **************
 
     @jwt.additional_claims_loader
-    def add_claims_to_jwt(identity):                # The add_claims_to_jwt function is defined as a callback function that will be called by the JWTManager to add additional claims to the JWT token. It takes one parameter: identity, which represents the identity of the user associated with the token. This function will be used to include custom claims in the JWT token, allowing for additional information to be stored and accessed during authentication and authorization processes.
-        if identity == 1:
-            return {"is_admin": True}
-        return {"is_admin": False}
+    def add_claims_to_jwt(identity):                    # The add_claims_to_jwt function is defined as a callback function that will be called by the JWTManager to add additional claims to the JWT token. It takes one parameter: identity, which represents the identity of the user for whom the token is being generated. This function allows you to include custom claims in the JWT payload, providing additional information about the user or their permissions.
+        user = UserModel.query.get(identity)
+        if user:
+            return {"role": user.role}
+        return {"role": "user"}
 
     # **************
 

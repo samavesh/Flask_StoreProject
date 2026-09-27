@@ -7,7 +7,7 @@ from flask_jwt_extended import create_access_token, create_refresh_token, get_jw
 from ..db import db
 from ..blocklist import BLOCKLIST
 from ..models import UserModel
-from ..schemas import UserSchema
+from ..schemas import UserSchema, UserLoginSchema
 
 
 blp = Blueprint("Users", "users", description = "Operations on user")
@@ -20,8 +20,11 @@ class UserRegister(MethodView):
     def post(self, user_data):
 
         user = UserModel(
+            firstname=user_data["firstname"],
+            lastname=user_data["lastname"],
             username=user_data["username"],
-            password=pbkdf2_sha256.hash(user_data["password"])
+            password=pbkdf2_sha256.hash(user_data["password"]),
+            email=user_data["email"]
         )
         try:
             db.session.add(user)
@@ -37,7 +40,7 @@ class UserRegister(MethodView):
 @blp.route("/login")
 class UserLogin(MethodView):
 
-    @blp.arguments(UserSchema)
+    @blp.arguments(UserLoginSchema)
     def post(self, user_data):
 
         user = UserModel.query.filter(
@@ -85,7 +88,12 @@ class User(MethodView):
         user = UserModel.query.get_or_404(user_id)
         return user
 
+    @jwt_required()
     def delete(self, user_id):
+        jwt = get_jwt()
+        if jwt.get("role") != "admin":          # The get_jwt function is called to retrieve the JWT (JSON Web Token) from the request. It returns a dictionary containing the claims (payload) of the token. The code checks if the "role" claim in the JWT is not equal to "admin". If the user does not have an admin role, it raises a 401 error using abort, indicating that admin privileges are required to perform the delete operation.
+            abort(401, message="Admin privilege required.")
+
         user = UserModel.query.get_or_404(user_id)
         db.session.delete(user)
         db.session.commit()

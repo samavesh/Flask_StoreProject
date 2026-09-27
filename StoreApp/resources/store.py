@@ -5,6 +5,7 @@ from flask_smorest import Blueprint, abort
 # from db import stores
 from ..schemas import StoreSchema
 
+from flask_jwt_extended import jwt_required, get_jwt
 from sqlalchemy.exc import SQLAlchemyError, IntegrityError          # The SQLAlchemyError and IntegrityError classes are imported from the sqlalchemy.exc module. These classes represent exceptions that can occur during database operations using SQLAlchemy. SQLAlchemyError is a general exception class for database errors, while IntegrityError specifically handles integrity constraint violations, such as unique constraint violations. These exceptions allow you to catch and handle specific database errors in your code.
 
 from ..db import db          # The db object is imported from the db module. This object is an instance of SQLAlchemy and provides the necessary functionality to interact with the database, including creating tables, executing queries, and managing database sessions.
@@ -35,6 +36,7 @@ class Store(MethodView):              # The Store class inherits from MethodView
         return store
 
 
+    @jwt_required()
     def delete(self, store_id):              # The delete method removes a store based on its store_id. It attempts to delete the store from the stores dictionary. If the store_id does not exist, it raises a 404 error using abort, indicating that the store was not found.
 
         # ************************************ 
@@ -46,6 +48,10 @@ class Store(MethodView):              # The Store class inherits from MethodView
         #     abort(404, message="Store not found")
 
         # ************************************ 
+
+        jwt = get_jwt()
+        if jwt.get("role") != "admin":          # The get_jwt function is called to retrieve the JWT (JSON Web Token) from the request. It returns a dictionary containing the claims (payload) of the token. The code checks if the "role" claim in the JWT is not equal to "admin". If the user does not have an admin role, it raises a 401 error using abort, indicating that admin privileges are required to perform the delete operation.
+            abort(401, message="Admin privilege required.")
 
         store = StoreModel.query.get_or_404(store_id)          # The query.get_or_404 method is called on the StoreModel class to retrieve a store from the database based on its store_id. If the store is not found, it automatically raises a 404 error, indicating that the store was not found. This provides a convenient way to handle store retrieval and error handling in a single line of code.
         # ************************************ 
