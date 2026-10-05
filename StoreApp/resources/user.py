@@ -1,13 +1,16 @@
+from flask import current_app
 from flask.views import MethodView
 from flask_smorest import Blueprint, abort
 from passlib.hash import pbkdf2_sha256
 from sqlalchemy.exc import SQLAlchemyError, IntegrityError
 from flask_jwt_extended import create_access_token, create_refresh_token, get_jwt_identity, jwt_required, get_jwt
+from sqlalchemy import or_
 
 from ..db import db
 from ..blocklist import BLOCKLIST
 from ..models import UserModel
 from ..schemas import UserSchema, UserLoginSchema
+from ..tasks import send_user_registration_email
 
 
 blp = Blueprint("Users", "users", description = "Operations on user")
@@ -18,6 +21,14 @@ class UserRegister(MethodView):
 
     @blp.arguments(UserSchema)
     def post(self, user_data):
+
+        if UserModel.query.filter(
+            or_(
+                UserModel.username == user_data["username"],
+                UserModel.email == user_data["email"]
+                )
+            ).first():
+            abort(409, message="A user with that username or email already exists.")
 
         user = UserModel(
             firstname=user_data["firstname"],
@@ -33,6 +44,9 @@ class UserRegister(MethodView):
             abort(400, message="A user with that username already exists.")
         except SQLAlchemyError:
             abort(500, message="An error occured while registering user.")
+
+        # Send email notification to the user
+        current_app.queue.enqueue(send_user_registration_email, user.email, user.username)
 
         return {"message": "User created successfully"}, 201
 

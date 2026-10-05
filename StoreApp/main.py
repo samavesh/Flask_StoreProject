@@ -1,4 +1,7 @@
 import os
+import redis
+from rq import Queue
+
 from flask import Flask, jsonify
 from flask_smorest import Api
 from flask_jwt_extended import JWTManager
@@ -20,6 +23,9 @@ def create_app(db_url = None):          # The create_app function is defined to 
     app = Flask(__name__)                # The Flask app instance is created by calling the Flask constructor and passing the name of the current module (__name__) as an argument. This instance serves as the central object for the application, allowing you to define routes, configure settings, and manage the overall behavior of the web application.
     load_dotenv()          # The load_dotenv function is called to load environment variables from a .env file. This allows you to define configuration values, such as the database connection URL, in a separate file and access them within the application using the os.getenv function. It provides a convenient way to manage sensitive information and configuration settings without hardcoding them in the codebase.
 
+    connection = redis.from_url(os.getenv("REDIS_URL"))          # The connection variable is created by calling the redis.from_url function and passing the value of the REDIS_URL environment variable. This establishes a connection to a Redis server using the specified URL, allowing the application to interact with Redis for caching, message queuing, or other purposes.
+    app.queue = Queue("emails", connection=connection)          # The app.queue attribute is set to a new instance of the Queue class, which is created by passing the name "emails" and the Redis connection object. This sets up a queue for handling email-related tasks, allowing the application to enqueue and process email sending operations asynchronously using Redis as the backend.
+    
     app.config["PROPAGATE_EXCEPTIONS"] = True               # The PROPAGATE_EXCEPTIONS configuration option is set to True, which means that exceptions raised during request handling will be propagated to the Flask application. This allows for better error handling and debugging, as it enables the application to catch and handle exceptions appropriately.
     app.config["API_TITLE"] = "Stores REST API"               # The API_TITLE configuration option is set to "Stores REST API", which specifies the title of the API. This title will be displayed in the generated OpenAPI documentation, providing a clear and descriptive name for the API.
     app.config["API_VERSION"] = "v1"                    # The API_VERSION configuration option is set to "v1", which specifies the version of the API. This versioning allows for better management of changes and updates to the API over time, enabling clients to specify which version of the API they want to interact with.
